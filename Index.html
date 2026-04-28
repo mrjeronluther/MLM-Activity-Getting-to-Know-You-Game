@@ -1,0 +1,1112 @@
+<!doctype html>
+<html>
+    <head>
+        <base target="_top" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>MLM Activity</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+        <style>
+            :root {
+                /* Modern Minimalist Palette */
+                --brand-primary: #4f46e5; /* Indigo */
+                --brand-primary-dark: #4338ca;
+                --brand-secondary: #f59e0b; /* Amber */
+                --brand-bg: #f8fafc;
+                --brand-surface: #ffffff;
+                --brand-text: #1e293b;
+                --brand-text-light: #64748b;
+                --brand-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                --brand-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            * {
+                box-sizing: border-box;
+                -webkit-tap-highlight-color: transparent;
+            }
+            html,
+            body {
+                height: 100%;
+                font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: var(--brand-bg);
+                color: var(--brand-text);
+                overscroll-behavior: none;
+            }
+            #app {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            [v-cloak] {
+                display: none;
+            }
+
+            /* Animations */
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+            @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+            .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+            .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+            /* --- UI COMPONENTS --- */
+
+            /* Buttons */
+            .btn {
+                border-radius: 12px;
+                padding: 10px 20px;
+                font-weight: 700;
+                transition: all 0.2s ease;
+                letter-spacing: 0.3px;
+                border: none;
+            }
+            .btn-primary {
+                background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
+                box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+            }
+            .btn-primary:active {
+                transform: scale(0.97);
+            }
+            .btn-outline-danger {
+                border: 2px solid #fee2e2;
+                color: #ef4444;
+                background: white;
+            }
+            .btn-outline-danger:hover {
+                background: #fee2e2;
+                color: #dc2626;
+                border-color: #fee2e2;
+            }
+
+            /* Login */
+            .login-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                flex-grow: 1;
+                padding: 20px;
+                animation: fadeIn 0.6s ease-out;
+            }
+            .login-box {
+                width: 100%;
+                max-width: 380px;
+                padding: 40px;
+                background: var(--brand-surface);
+                border-radius: 24px;
+                box-shadow: var(--brand-shadow);
+                text-align: center;
+                border: 1px solid rgba(255,255,255,0.8);
+            }
+            .login-box input {
+                background: #f1f5f9;
+                border: 2px solid transparent;
+                border-radius: 12px;
+                padding: 15px;
+                transition: 0.2s;
+            }
+            .login-box input:focus {
+                background: white;
+                border-color: var(--brand-primary);
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            }
+            .logo {
+                max-width: 140px;
+                margin-bottom: 30px;
+                border-radius: 18px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            }
+
+            /* Game Layout */
+            .game-view {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 15px 15px 30px 15px; /* Added bottom padding */
+                max-width: 550px; /* Slightly tighter width for mobile feel */
+                margin: 0 auto;
+                width: 100%;
+                animation: fadeIn 0.5s ease-out;
+            }
+
+            /* Floating Header */
+            .game-header {
+                width: 100%;
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                padding: 12px 18px;
+                border-radius: 20px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 100;
+            }
+            .player-label {
+                font-size: 0.65rem;
+                letter-spacing: 1px;
+                color: var(--brand-text-light);
+                font-weight: 700;
+                text-transform: uppercase;
+                margin-bottom: 2px;
+            }
+            .player-name {
+                font-size: 1.1rem;
+                font-weight: 800;
+                color: var(--brand-text);
+                line-height: 1;
+            }
+
+            /* Progress */
+            .progress-container {
+                width: 100%;
+                margin-bottom: 20px;
+                background: white;
+                padding: 15px;
+                border-radius: 16px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            }
+            .progress-label {
+                display: flex;
+                justify-content: space-between;
+                color: var(--brand-primary);
+                font-weight: 700;
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
+            .progress {
+                height: 12px;
+                border-radius: 10px;
+                background: #e2e8f0;
+                overflow: hidden;
+            }
+            .progress-bar {
+                background: linear-gradient(90deg, var(--brand-primary), #6366f1);
+                box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+                transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            }
+
+            /* Game Board */
+            .game-board-container {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px; /* Increased gap */
+                width: 100%;
+                padding: 15px;
+                background: var(--brand-surface);
+                border-radius: 24px;
+                box-shadow: var(--brand-shadow);
+            }
+            .tile {
+                aspect-ratio: 1/1;
+                position: relative;
+                background: #f8fafc;
+                border: 1px solid #f1f5f9;
+                border-radius: 12px;
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                user-select: none;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+            .tile:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+                border-color: #cbd5e1;
+            }
+            .tile:active {
+                transform: scale(0.92);
+            }
+            .tile-text {
+                font-size: clamp(8px, 2.3vw, 11px);
+                font-weight: 600;
+                color: var(--brand-primary);
+                text-align: center;
+                line-height: 1.3;
+                width: 100%;
+                padding: 4px;
+                display: -webkit-box;
+                -webkit-line-clamp: 4;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            /* Clicked State */
+            .tile.clicked {
+                background: linear-gradient(135deg, var(--brand-primary), #4338ca);
+                border-color: transparent;
+                transform: none;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .tile.clicked .tile-text {
+                color: rgba(255,255,255,0.85);
+            }
+            .check-icon {
+                font-size: 1.8rem;
+                color: white;
+                position: absolute;
+                z-index: 10;
+                animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+
+            /* Autocomplete */
+            .autocomplete-container { position: relative; }
+            .suggestions-list {
+                position: absolute;
+                top: calc(100% + 5px);
+                left: 0;
+                right: 0;
+                z-index: 1055;
+                background: white;
+                border: none;
+                border-radius: 12px;
+                max-height: 220px;
+                overflow-y: auto;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                list-style: none;
+                padding: 5px;
+            }
+            .suggestion-item {
+                padding: 12px 15px;
+                border-radius: 8px;
+                font-size: 0.95rem;
+                cursor: pointer;
+                color: var(--brand-text);
+                transition: background 0.15s;
+                margin-bottom: 2px;
+            }
+            .suggestion-item:hover, .suggestion-item:active {
+                background-color: #f1f5f9;
+                color: var(--brand-primary);
+                font-weight: 500;
+            }
+
+            /* Modals & Badges */
+            .loading-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(5px);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+            .modal-content {
+                border-radius: 24px;
+                border: none;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+            .modal-header {
+                border-bottom: 1px solid #f1f5f9;
+                padding: 20px 24px 10px 24px;
+            }
+            .modal-body {
+                padding: 24px;
+            }
+            .modal-footer {
+                border-top: none;
+                padding: 10px 24px 24px 24px;
+            }
+            .unlocked-patterns-box { width: 100%; margin-top: 25px; text-align: center;}
+            .pattern-badge {
+                display: inline-block;
+                background: #fffbeb;
+                color: #b45309;
+                border: 1px solid #fcd34d;
+                font-weight: 700;
+                padding: 6px 14px;
+                border-radius: 20px;
+                margin: 4px;
+                font-size: 0.75rem;
+                animation: pop 0.4s;
+            }
+
+            /* Admin */
+            .admin-tile {
+                aspect-ratio: 1/1;
+                border-radius: 8px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 0.9rem;
+                font-weight: 600;
+                cursor: pointer;
+                background: #f8fafc;
+                border: 2px solid #e2e8f0;
+                color: #94a3b8;
+                transition: 0.2s;
+            }
+            .admin-tile.selected {
+                background-color: var(--brand-primary);
+                color: white;
+                border-color: var(--brand-primary);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="app" v-cloak>
+            <!-- Loading -->
+            <transition name="fade">
+                <div v-if="isLoading" class="loading-overlay">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <p class="mt-4 text-muted fw-bold">{{ loadingMessage }}</p>
+                </div>
+            </transition>
+
+            <main>
+                <!-- LOGIN -->
+                <div v-if="view === 'login'" class="login-container">
+                    <div class="login-box">
+                        <img
+                            src="https://raw.githubusercontent.com/mrjeronluther/Memo-Routing-Landing-Page/main/WhatsApp%20Image%202025-06-05%20at%2015.44.42_3fc69535.jpg"
+                            alt="Logo"
+                            class="logo"
+                        />
+                        <h2 class="h4 mb-3 fw-bold">Hello There!</h2>
+                        <p class="text-secondary small mb-4">Welcome to the "GETTING TO KNOW YOU" Game.<br>Please enter your nickname to start.</p>
+                        <div class="mb-4">
+                            <input
+                                type="text"
+                                class="form-control form-control-lg text-center fw-bold text-uppercase"
+                                placeholder="YOUR NICKNAME"
+                                v-model.trim="playerName"
+                                @keyup.enter="initializeSession"
+                            />
+                        </div>
+                        <button
+                            class="btn btn-primary w-100 btn-lg"
+                            @click="initializeSession"
+                            :disabled="!playerName"
+                        >
+                            Let's Play <i class="bi bi-arrow-right-short"></i>
+                        </button>
+                        <div
+                            v-if="loginError"
+                            class="alert alert-danger mt-3 py-2 small border-0 bg-danger-subtle text-danger"
+                            style="border-radius: 12px;"
+                        >
+                            <i class="bi bi-exclamation-circle-fill me-1"></i> {{ loginError }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GAME -->
+                <div v-if="view === 'game'" class="game-view">
+                    <header class="game-header">
+                        <div>
+                            <div class="player-label">Current Player</div>
+                            <div class="player-name">{{ playerName }}</div>
+                        </div>
+                        <!-- Updated Right Side: Exit Button & Logo -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-danger" @click="confirmExit" style="border-radius: 8px;">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </button>
+                            
+                        </div>
+                    </header>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Your Progress</span>
+                            <span class="badge bg-light text-primary border">{{ clickedTiles.length }} / 25</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <div class="game-board-container">
+                        <div v-for="i in 25" :key="i-1" class="tile" :class="tileClass(i-1)" @click="onTileClick(i-1)">
+                            <div class="tile-text">{{ getTileQuestion(i-1) }}</div>
+                            <i v-if="clickedTiles.includes(i-1)" class="bi bi-check-lg check-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="unlocked-patterns-box">
+                         <div v-if="completedPatterns.length > 0">
+                            <h6 class="text-secondary small text-uppercase fw-bold mb-3">
+                                <i class="bi bi-award-fill text-warning me-1"></i> Achievements
+                            </h6>
+                            <span v-for="pattern in completedPatterns" :key="pattern" class="pattern-badge">
+                                {{ pattern }}
+                            </span>
+                        </div>
+                        <div v-else class="text-muted small py-2 bg-white rounded-3 border" style="display:inline-block; padding: 0 15px;">
+                            <i class="bi bi-grid-3x3 me-1"></i> Complete patterns to earn prizes!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN DASHBOARD -->
+                <div v-if="view === 'admin'" class="container-fluid py-4" style="max-width: 900px; margin: 0 auto">
+                    <!-- Header -->
+                    <header class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm">
+                        <div>
+                            <h4 class="m-0 text-primary fw-bold">
+                                <i class="bi bi-shield-lock-fill me-2"></i>Admin Dashboard
+                            </h4>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-warning me-2" @click="clearCache">
+                                <i class="bi bi-arrow-clockwise"></i> Clear Cache
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @click="logout">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
+                        </div>
+                    </header>
+
+                    <!-- Stats & Actions -->
+                    <div class="d-flex justify-content-between align-items-center bg-white p-4 rounded-4 shadow-sm mb-4">
+                        <div>
+                            <span class="d-block text-muted small text-uppercase fw-bold">Active Patterns</span>
+                            <span class="fs-2 fw-bold text-dark">{{ adminData.patterns.length }}</span>
+                        </div>
+                        <button class="btn btn-primary" @click="openAdminModal">
+                            <i class="bi bi-plus-lg me-1"></i> Create Pattern
+                        </button>
+                    </div>
+
+                    <!-- Pattern History List -->
+                    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="m-0 fw-bold text-dark">Pattern Management</h6>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Pattern Name</th>
+                                        <th>Tiles Config</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="p in adminData.patterns" :key="p.PatternID">
+                                        <td class="ps-4 fw-medium text-dark">{{ p.PatternName }}</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border rounded-pill"
+                                                >{{ p.TileIndices.split(',').length }} tiles selected</span
+                                            >
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <!-- VIEW/EDIT BUTTON -->
+                                            <button
+                                                class="btn btn-sm btn-light text-primary me-2"
+                                                @click="viewPattern(p)"
+                                            >
+                                                <i class="bi bi-eye-fill"></i> View
+                                            </button>
+                                            <button
+                                                class="btn btn-sm btn-light text-danger"
+                                                @click="deletePattern(p.PatternID)"
+                                            >
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="adminData.patterns.length === 0">
+                                        <td colspan="3" class="text-center py-5 text-muted">
+                                            No patterns created yet. Click "Create Pattern" to start.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ADMIN MODAL: CREATE / VIEW PATTERN -->
+            <div class="modal fade" id="adminModal" tabindex="-1" data-bs-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold text-primary">
+                                {{ isViewMode ? 'View Pattern' : 'Create New Pattern' }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Name Input -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small text-muted">Pattern Name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    v-model="newPattern.name"
+                                    placeholder="e.g., Four Corners"
+                                    :disabled="isViewMode"
+                                />
+                            </div>
+
+                            <!-- The 5x5 Grid -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted text-center w-100"
+                                    >Select Tiles</label
+                                >
+                                <div class="admin-grid-container">
+                                    <div
+                                        v-for="i in 25"
+                                        :key="i-1"
+                                        class="admin-tile"
+                                        :class="{ 'selected': newPattern.indices.includes(i-1) }"
+                                        @click="toggleAdminTile(i-1)"
+                                    >
+                                        {{ i }}
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3 small text-primary bg-light rounded py-1">{{ formattedIndices }}</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+
+                            <!-- Save Button (Only if NOT in View Mode) -->
+                            <button v-if="!isViewMode" type="button" class="btn btn-primary px-4" @click="addPattern">
+                                <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span> Save Pattern
+                            </button>
+
+                            <!-- Clone Button (If in View Mode, allow them to save as new) -->
+                            <button v-if="isViewMode" type="button" class="btn btn-primary px-4" @click="copyPattern">
+                                <i class="bi bi-files me-2"></i> Save as New
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GAME MODALS -->
+            
+            <!-- EXIT CONFIRMATION MODAL -->
+            <div class="modal fade" id="exitConfirmationModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0 pb-0">
+                             <h5 class="modal-title text-danger fw-bold w-100 text-center mt-2">Exit Game?</h5>
+                        </div>
+                        <div class="modal-body text-center pt-2 pb-4">
+                            <div class="mb-3 text-danger opacity-50"><i class="bi bi-box-arrow-left" style="font-size: 3rem;"></i></div>
+                            <p class="text-muted mb-0">Are you sure you want to return to login?<br><small>Your progress will be saved automatically.</small></p>
+                        </div>
+                        <div class="modal-footer justify-content-center bg-light border-0">
+                            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Keep Playing</button>
+                            <button type="button" class="btn btn-danger px-4" @click="logout">Yes, Exit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Modal -->
+            <div class="modal fade" id="questionModal" tabindex="-1" data-bs-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content" style="overflow: visible">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title fw-bold text-primary">Tile #{{ modalData.tileIndex + 1 }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body" style="overflow: visible">
+                            <div class="p-3 bg-light rounded-3 mb-4 text-center">
+                                 <h5 class="mb-0 text-dark fw-bold lh-base">{{ modalData.questionText }}</h5>
+                            </div>
+                           
+                            <div class="mb-3 autocomplete-container">
+                                <label class="form-label text-muted small fw-bold text-uppercase">Who fits this description?</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg border-start-0 ps-0"
+                                        placeholder="Type name here..."
+                                        v-model="modalData.answer"
+                                        @input="showSuggestions = true"
+                                        @focus="showSuggestions = true"
+                                        autocomplete="off"
+                                    />
+                                </div>
+                                <ul v-if="showSuggestions && filteredNames.length > 0" class="suggestions-list">
+                                    <li v-for="name in filteredNames" class="suggestion-item" @click="selectName(name)">
+                                        {{ name }}
+                                    </li>
+                                </ul>
+                                <ul
+                                    v-if="showSuggestions && modalData.answer && filteredNames.length === 0"
+                                    class="suggestions-list"
+                                >
+                                    <li class="suggestion-item text-muted" style="cursor: default">
+                                        <i class="bi bi-slash-circle me-2"></i> No name found (or already used)
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                data-bs-dismiss="modal"
+                                :disabled="isSubmitting"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-primary px-4"
+                                @click="submitAnswer(0)"
+                                :disabled="!modalData.answer || isSubmitting"
+                            >
+                                <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>Confirm Answer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade" id="errorModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0">
+                        <div class="modal-header bg-danger text-white border-0">
+                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Oops!</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4 text-center">
+                            <p class="mb-0 text-danger fw-bold">{{ errorMessage }}</p>
+                        </div>
+                        <div class="modal-footer bg-light justify-content-center border-0">
+                            <button type="button" class="btn btn-outline-secondary w-50" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade" id="completeModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center border-0" style="background: linear-gradient(135deg, #fffbeb, #fff)">
+                        <div class="modal-body p-5">
+                            <div class="trophy-animate mb-3"><i class="bi bi-trophy-fill text-warning"></i></div>
+                            <h2 class="fw-bold text-dark mb-2">FANTASTIC!</h2>
+                            <p class="mb-4 text-secondary">You have cleared the entire board!</p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-warning rounded-pill fw-bold text-white shadow" @click="celebrateCompletion">
+                                    <i class="bi bi-stars me-2"></i>Throw Confetti!
+                                </button>
+                                <button class="btn btn-outline-secondary rounded-pill" @click="logout">Back to Login</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade" id="welcomeModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content text-center border-0 p-2">
+                        <div class="modal-body">
+                            <div class="mb-3 text-primary"><i class="bi bi-info-circle-fill" style="font-size: 2.5rem;"></i></div>
+                            <h2 class="fw-bold text-primary mb-3">How to Play</h2>
+                            <p class="text-secondary mb-4 lh-lg">
+                                Tap a tile to see a question about a person.<br>
+                                <strong>Find the person</strong> who matches the description and select their name!<br>
+                                <span class="text-danger small">* You cannot use the same person twice.</span>
+                            </p>
+                            <button class="btn btn-primary w-100" data-bs-dismiss="modal">
+                                Ready? Let's Go!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 1055">
+                <div
+                    id="patternToast"
+                    class="toast align-items-center text-bg-success border-0 shadow-lg rounded-4"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                >
+                    <div class="d-flex">
+                        <div class="toast-body text-center w-100 fw-bold">
+                            <i class="bi bi-star-fill me-2 text-warning"></i> Unlocked: {{ toastMessage }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+        <script>
+            const { createApp } = Vue;
+            createApp({
+                data: () => ({
+                    isLoading: false,
+                    isSubmitting: false,
+                    loadingMessage: "Loading...",
+                    view: "login",
+                    playerName: "",
+                    loginError: "",
+                    allQuestions: [],
+                    patterns: [],
+                    shuffledBoardQuestions: [],
+                    clickedTiles: [],
+                    completedPatterns: [],
+                    registeredNames: [],
+                    usedAnswers: [],
+                    modalInstance: null,
+                    completeModalInstance: null,
+                    welcomeModalInstance: null,
+                    exitModalInstance: null,
+                    toastInstance: null,
+                    errorModalInstance: null,
+                    // ADMIN SPECIFIC
+                    adminModalInstance: null,
+                    isViewMode: false,
+
+                    modalData: { tileIndex: -1, questionText: "", answer: "" },
+                    toastMessage: "",
+                    errorMessage: "",
+                    showSuggestions: false,
+                    adminData: { patterns: [], error: null },
+                    newPattern: { name: "", indices: [] },
+                    isGameComplete: false,
+                }),
+                mounted() {
+                    this.modalInstance = new bootstrap.Modal(document.getElementById("questionModal"));
+                    this.completeModalInstance = new bootstrap.Modal(document.getElementById("completeModal"));
+                    this.welcomeModalInstance = new bootstrap.Modal(document.getElementById("welcomeModal"));
+                    this.errorModalInstance = new bootstrap.Modal(document.getElementById("errorModal"));
+                    this.exitModalInstance = new bootstrap.Modal(document.getElementById("exitConfirmationModal"));
+                    this.adminModalInstance = new bootstrap.Modal(document.getElementById("adminModal"));
+                    this.toastInstance = new bootstrap.Toast(document.getElementById("patternToast"), { delay: 3000 });
+                    
+                    document.addEventListener("click", (e) => {
+                        const container = document.querySelector(".autocomplete-container");
+                        if (container && !container.contains(e.target)) this.showSuggestions = false;
+                    });
+                },
+                computed: {
+                    formattedIndices() {
+                        return this.newPattern.indices.length === 0
+                            ? "No tiles selected"
+                            : this.newPattern.indices
+                                  .sort((a, b) => a - b)
+                                  .map((i) => i + 1)
+                                  .join(", ");
+                    },
+                    progressPercentage() {
+                        return (this.clickedTiles.length / 25) * 100;
+                    },
+                    tileClass() {
+                        return (index) => (this.clickedTiles.includes(index) ? ["clicked"] : []);
+                    },
+                    filteredNames() {
+                        const currentPlayer = this.playerName ? this.playerName.toUpperCase() : "";
+                        const available = this.registeredNames.filter(
+                            (n) => 
+                                !this.usedAnswers.includes(n.toUpperCase()) && 
+                                n.toUpperCase() !== currentPlayer
+                        );
+                        
+                        if (!this.modalData.answer) return available.slice(0, 50);
+                        const term = this.modalData.answer.toLowerCase();
+                        return available.filter((n) => n.toLowerCase().includes(term)).slice(0, 20);
+                    },
+                },
+                methods: {
+                    selectName(name) {
+                        this.modalData.answer = name;
+                        this.showSuggestions = false;
+                    },
+                    initializeSession() {
+                      if (!this.playerName) { this.loginError = "Please enter your name."; return; }
+                      this.loginError = ""; this.isGameComplete = false;
+                      const inputName = this.playerName.trim().toUpperCase();
+                      this.playerName = inputName; 
+
+                      if (this.playerName === "ADMIN123") { 
+                        this.view = "admin"; 
+                        this.loadAdminData(); 
+                        return; 
+                      }
+                      
+                      this.isLoading = true; this.loadingMessage = "Getting things ready...";
+                      google.script.run.withSuccessHandler(this.onDataLoaded).withFailureHandler(this.onDataLoadError).getInitialData(this.playerName);
+                    },
+                    clearCache() {
+                        if (!confirm("Reload?")) return;
+                        this.isLoading = true;
+                        google.script.run
+                            .withSuccessHandler((res) => {
+                                if (res.error) {
+                                    this.isLoading = false;
+                                    alert(res.error);
+                                } else {
+                                    google.script.run
+                                        .withSuccessHandler((d) => {
+                                            this.isLoading = false;
+                                            this.allQuestions = d.questions;
+                                            this.patterns = d.patterns;
+                                            this.loadAdminData();
+                                        })
+                                        .getInitialData(this.playerName);
+                                }
+                            })
+                            .clearServerCache(this.playerName);
+                    },
+                    loadAdminData() {
+                        this.isLoading = true;
+                        google.script.run
+                            .withSuccessHandler((d) => {
+                                if (d && !d.error) this.adminData.patterns = d.patterns || [];
+                                else this.adminData.error = d ? d.error : "Error";
+                                this.isLoading = false;
+                            })
+                            .getAdminPatterns(this.playerName);
+                    },
+                    openAdminModal() {
+                        this.isViewMode = false;
+                        this.newPattern = { name: "", indices: [] };
+                        this.adminModalInstance.show();
+                    },
+                    viewPattern(pattern) {
+                        this.isViewMode = true;
+                        const indices = pattern.TileIndices.split(",").map(Number);
+                        this.newPattern = { name: pattern.PatternName, indices: indices };
+                        this.adminModalInstance.show();
+                    },
+                    toggleAdminTile(index) {
+                        const idx = this.newPattern.indices.indexOf(index);
+                        if (idx > -1) this.newPattern.indices.splice(idx, 1);
+                        else this.newPattern.indices.push(index);
+                    },
+                    addPattern() {
+                        if (!this.newPattern.name || !this.newPattern.indices.length) return alert("Missing info");
+                        this.isSubmitting = true;
+                        google.script.run
+                            .withSuccessHandler(() => {
+                                this.isSubmitting = false;
+                                this.adminModalInstance.hide();
+                                this.loadAdminData();
+                            })
+                            .addPattern(
+                                JSON.stringify({
+                                    name: this.newPattern.name,
+                                    indices: this.newPattern.indices.sort((a, b) => a - b).join(","),
+                                }),
+                                this.playerName
+                            );
+                    },
+                    copyPattern() {
+                        this.isViewMode = false;
+                        this.newPattern.name = this.newPattern.name + " (Copy)";
+                    },
+                    deletePattern(id) {
+                        if (!confirm("Delete?")) return;
+                        this.isLoading = true;
+                        google.script.run
+                            .withSuccessHandler(() => {
+                                this.isLoading = false;
+                                this.loadAdminData();
+                            })
+                            .deletePattern(id, this.playerName);
+                    },
+                    onDataLoaded(data) {
+                        if (data.error) {
+                            this.onDataLoadError({ message: data.error });
+                            return;
+                        }
+                        if (!data.questions || data.questions.length < 25) {
+                            this.onDataLoadError({ message: "Not enough questions configured." });
+                            return;
+                        }
+                        this.allQuestions = data.questions;
+                        this.patterns = data.patterns;
+                        this.clickedTiles = data.playerProgress || [];
+                        this.completedPatterns = data.completedPatterns || [];
+                        this.registeredNames = data.registeredNames || [];
+                        this.usedAnswers = data.usedAnswers || [];
+                        this.startGame();
+                        this.view = "game";
+                        this.isLoading = false;
+                        setTimeout(() => {
+                            if (this.clickedTiles.length >= 25) {
+                                this.isGameComplete = true;
+                                this.celebrateCompletion();
+                            } else if (this.clickedTiles.length === 0) {
+                                this.welcomeModalInstance.show();
+                            }
+                        }, 500);
+                    },
+                    onDataLoadError(error) {
+                        this.isLoading = false;
+                        this.loginError = error.message;
+                    },
+                    startGame() {
+                        this.shuffledBoardQuestions = this.shuffleArraySeeded(
+                            [...this.allQuestions],
+                            this.playerName
+                        ).slice(0, 25);
+                    },
+                    confirmExit() {
+                        if (this.exitModalInstance) {
+                            this.exitModalInstance.show();
+                        }
+                    },
+                    logout() {
+                        if (this.exitModalInstance) this.exitModalInstance.hide();
+                        if (this.adminModalInstance) this.adminModalInstance.hide();
+                        if (this.completeModalInstance) this.completeModalInstance.hide();
+                        
+                        this.view = "login";
+                        this.playerName = "";
+                        this.clickedTiles = [];
+                        this.usedAnswers = [];
+                        this.isGameComplete = false;
+                    },
+                    shuffleArraySeeded(array, seed) {
+                        let h = 1779033703 ^ seed.length;
+                        for (let i = 0; i < seed.length; i++) {
+                            h = Math.imul(h ^ seed.charCodeAt(i), 3432918353);
+                            h = (h << 13) | (h >>> 19);
+                        }
+                        const random = () => {
+                            h = Math.imul(h ^ (h >>> 16), 2246822507);
+                            h = Math.imul(h ^ (h >>> 13), 3266489909);
+                            return ((h ^= h >>> 16) >>> 0) / 4294967296;
+                        };
+                        let currentIndex = array.length,
+                            randomIndex;
+                        while (currentIndex !== 0) {
+                            randomIndex = Math.floor(random() * currentIndex);
+                            currentIndex--;
+                            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                        }
+                        return array;
+                    },
+                    getTileQuestion(index) {
+                        const q = this.shuffledBoardQuestions[index];
+                        if (!q) return "";
+                        if (q.questiontext) return q.questiontext;
+                        if (q.QuestionText) return q.QuestionText;
+                        const keys = Object.keys(q);
+                        return keys.length > 0 ? q[keys[0]] : "";
+                    },
+                    onTileClick(index) {
+                        if (this.clickedTiles.includes(index) || this.isGameComplete) return;
+                        const text = this.getTileQuestion(index) || "Question";
+                        this.modalData = { tileIndex: index, questionText: text, answer: "" };
+                        this.showSuggestions = false;
+                        this.modalInstance.show();
+                    },
+                    submitAnswer(retryCount = 0) {
+                        const answer = this.modalData.answer.trim().toUpperCase();
+                        if (!answer) return;
+                        if (this.usedAnswers.includes(answer)) {
+                            this.errorMessage = `You have already used '${this.modalData.answer}'. Each person can only be used once!`;
+                            this.errorModalInstance.show();
+                            return;
+                        }
+                        this.isSubmitting = true;
+                        const actionData = {
+                            playerName: this.playerName,
+                            tileIndex: this.modalData.tileIndex,
+                            questionText: this.modalData.questionText,
+                            answer: this.modalData.answer,
+                            clickedTiles: this.clickedTiles,
+                            previousPatterns: this.completedPatterns,
+                        };
+
+                        google.script.run
+                            .withSuccessHandler((result) => {
+                                if (result.error) {
+                                    if (result.error.includes("Server is busy") && retryCount < 2) {
+                                        setTimeout(() => this.submitAnswer(retryCount + 1), 2000);
+                                    } else {
+                                        this.isSubmitting = false;
+                                        this.errorMessage = result.error;
+                                        this.errorModalInstance.show();
+                                    }
+                                } else {
+                                    this.isSubmitting = false;
+                                    this.modalInstance.hide();
+                                    if (!this.clickedTiles.includes(this.modalData.tileIndex)) {
+                                        this.clickedTiles.push(this.modalData.tileIndex);
+                                    }
+                                    this.usedAnswers.push(answer);
+                                    this.handlePatternCompletion(result);
+                                }
+                            })
+                            .withFailureHandler(() => {
+                                this.isSubmitting = false;
+                                this.errorMessage = "Connection failed.";
+                                this.errorModalInstance.show();
+                            })
+                            .processPlayerAction(JSON.stringify(actionData));
+                    },
+                    handlePatternCompletion(newPatterns) {
+                        if (this.isGameComplete) return;
+                        if (newPatterns && newPatterns.length > 0) {
+                            newPatterns.forEach((name) => {
+                                if (!this.completedPatterns.includes(name)) this.completedPatterns.push(name);
+                            });
+                            this.toastMessage = `${newPatterns.join(", ")}`;
+                            this.toastInstance.show();
+                        }
+                        if (this.clickedTiles.length >= 25) {
+                            this.isGameComplete = true;
+                            this.celebrateCompletion();
+                        }
+                    },
+                    celebrateCompletion() {
+                        this.completeModalInstance.show();
+                        const duration = 2000;
+                        const animationEnd = Date.now() + duration;
+                        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+                        const randomInRange = (min, max) => Math.random() * (max - min) + min;
+                        const interval = setInterval(function () {
+                            const timeLeft = animationEnd - Date.now();
+                            if (timeLeft <= 0) {
+                                return clearInterval(interval);
+                            }
+                            const particleCount = 50 * (timeLeft / duration);
+                            confetti(
+                                Object.assign({}, defaults, {
+                                    particleCount,
+                                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                                })
+                            );
+                            confetti(
+                                Object.assign({}, defaults, {
+                                    particleCount,
+                                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                                })
+                            );
+                        }, 250);
+                    },
+                },
+            }).mount("#app");
+        </script>
+    </body>
+</html>
